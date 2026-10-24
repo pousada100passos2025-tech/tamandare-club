@@ -1,0 +1,1 @@
+CREATE INDEX `idx_attendees_partner_code` ON `attendees` (`partner_code`);
