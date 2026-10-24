@@ -68,6 +68,7 @@ export default function Home() {
       <Header />
       <main>
         <Hero />
+        <ReveillonDestaque />
         <Atracoes />
         <Programacao />
         <Reservas />
@@ -219,6 +220,13 @@ function Hero() {
           >
             Ver programação
           </a>
+          <a
+            href="/reservas/reveillon"
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-gold/60 bg-night/60 px-6 py-3 text-xs font-bold uppercase tracking-[0.1em] text-gold transition-colors hover:bg-gold/10 sm:px-8 sm:py-4 sm:text-sm"
+          >
+            <Ticket className="h-5 w-5" aria-hidden="true" />
+            Réveillon 2027
+          </a>
         </div>
       </div>
 
@@ -229,6 +237,45 @@ function Hero() {
       >
         <ChevronDown className="h-6 w-6" />
       </a>
+    </section>
+  );
+}
+
+function ReveillonDestaque() {
+  return (
+    <section id="reveillon" aria-labelledby="reveillon-destaque-title" className="scroll-mt-24 bg-background py-10 md:py-16">
+      <div className="mx-auto max-w-7xl container-padding">
+        <div className="overflow-hidden rounded-2xl border border-gold/40 bg-card md:grid md:grid-cols-2">
+          <img
+            src="/club/reveillon-2027-hero.webp"
+            alt="Imagem ilustrativa de fogos dourados e coqueiros em uma noite de Réveillon."
+            className="h-56 w-full object-cover sm:h-72 md:h-full"
+            loading="lazy"
+            width={1536}
+            height={1024}
+          />
+          <div className="p-6 sm:p-8 md:p-10">
+            <SectionLabel>Réveillon no Tamandaré Club</SectionLabel>
+            <h2 id="reveillon-destaque-title" className="mt-3 font-display text-4xl font-bold uppercase leading-none md:text-5xl">
+              Três dias.<br /><span className="gold-text">Um novo ano.</span>
+            </h2>
+            <p className="mt-4 text-sm font-semibold text-gold">30 e 31 de dezembro de 2026 · 1º de janeiro de 2027</p>
+            <p className="mt-4 leading-relaxed text-muted-foreground">
+              Open bar com ingressos individuais por dia. Confira os três dias de evento e a tabela de lotes, a partir de R$ 600 por pessoa, por dia.
+            </p>
+            <div className="mt-5 rounded-xl border border-gold/20 bg-background/60 p-4">
+              <p className="text-sm font-semibold text-foreground">Reservas abertas · Vendas online em breve</p>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                Por enquanto, o site recebe pedidos de reserva. O pagamento online e a emissão de ingressos ainda não estão disponíveis. A equipe confirma as condições e a disponibilidade pelo WhatsApp.
+              </p>
+            </div>
+            <a href="/reservas/reveillon" className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full gold-gradient px-6 py-3.5 text-center text-sm font-bold text-gold-foreground sm:w-auto">
+              <Ticket className="h-5 w-5" aria-hidden="true" />
+              Ver dias, lotes e solicitar reserva
+            </a>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }
