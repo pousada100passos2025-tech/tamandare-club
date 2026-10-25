@@ -10,7 +10,7 @@ export async function POST(request: Request) {
   if (!user || user.email.trim().toLowerCase() !== ADMIN) {
     return NextResponse.json({ error: "Acesso administrativo obrigatório." }, { status: 403 });
   }
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const key = process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!key) return NextResponse.json({ error: "Sincronização não configurada no servidor." }, { status: 503 });
   const body = await request.json().catch(() => null) as { drafts?: unknown } | null;
   if (!Array.isArray(body?.drafts) || body.drafts.length < 1 || body.drafts.length > 20) {
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
   try {
     const response = await fetch(`https://${PROJECT}.supabase.co/rest/v1/club_offline_drafts?on_conflict=id`, {
       method: "POST",
-      headers: { apikey: key, Authorization: `Bearer ${key}`,
+      headers: { apikey: key, ...(key.startsWith("sb_secret_") ? {} : { Authorization: `Bearer ${key}` }),
         Prefer: "resolution=ignore-duplicates,return=minimal", "Content-Type": "application/json" },
       body: JSON.stringify(records),
       cache: "no-store"
