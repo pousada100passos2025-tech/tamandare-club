@@ -6,6 +6,9 @@ export default function OfflinePdv() {
  const [online,setOnline]=useState(true);
  const [drafts,setDrafts]=useState<DraftSale[]>([]);
  const [error,setError]=useState("");
+ const [syncMessage,setSyncMessage]=useState("");
+ const [syncedIds,setSyncedIds]=useState<string[]>([]);
+ const [syncing,setSyncing]=useState(false);
  const [table,setTable]=useState("");
  const [customer,setCustomer]=useState("");
  const [waiter,setWaiter]=useState("");
@@ -23,6 +26,23 @@ export default function OfflinePdv() {
   return ()=>{window.removeEventListener("online",up);window.removeEventListener("offline",down)};
  },[]);
  const cents=Math.round(Number(price)*100),qty=Number(quantity),total=cents*qty, cash=Math.round(Number(received)*100);
+ async function syncDrafts(){
+  setError("");setSyncMessage("");setSyncing(true);
+  try{
+   const pending=(await listDrafts()).filter(d=>!syncedIds.includes(d.id));
+   if(!pending.length){setSyncMessage("Nenhum rascunho novo para enviar.");return}
+   const accepted:string[]=[];
+   for(let i=0;i<pending.length;i+=20){
+    const response=await fetch("/api/pdv-offline/sync",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({drafts:pending.slice(i,i+20)})});
+    const body=await response.json();
+    if(!response.ok)throw Error(body.error||"Envio não confirmado.");
+    accepted.push(...(body.acceptedIds as string[]));
+   }
+   setSyncedIds(previous=>[...new Set([...previous,...accepted])]);
+   setSyncMessage(accepted.length+" rascunho(s) enviado(s) ao Supabase para revisão. Nenhuma venda ou pagamento confirmado.");
+  }catch(e){setError(e instanceof Error?e.message:"Falha ao sincronizar.");}
+  finally{setSyncing(false)}
+ }
  async function submit(event:React.FormEvent){
   event.preventDefault();setError("");
   if(!table.trim()||!waiter.trim()||!item.trim()||!Number.isSafeInteger(cents)||cents<0||!Number.isSafeInteger(qty)||qty<1||qty>100||total<=0||!Number.isSafeInteger(total)||total>100000000){setError("Confira mesa, funcionário, produto, valor e quantidade.");return}
@@ -33,7 +53,7 @@ export default function OfflinePdv() {
  return <main className="theme-night min-h-screen bg-background text-foreground px-4 py-8">
   <div className="mx-auto max-w-2xl space-y-6">
    <header className="flex items-center gap-4"><img src="/club/tamandare-club-profile.png" alt="" width="64" height="64"/><div><h1 className="text-2xl font-bold">PDV • contingência offline</h1><p className="text-sm text-muted-foreground">{online?"Internet disponível":"Sem internet"} • registros locais neste aparelho</p></div></header>
-   <div role="alert" className="rounded-xl border border-amber-500/50 bg-amber-950/30 p-4 text-sm"><strong>Modo de preparação, não operacional.</strong> Pedidos abaixo são rascunhos locais e NÃO são transmitidos ao bar, caixa, Supabase ou Asaas. Não utilize esta tela para cobrar clientes. Sincronização e autenticação ainda não implementadas.</div>
+   <div role="alert" className="rounded-xl border border-amber-500/50 bg-amber-950/30 p-4 text-sm"><strong>Modo de preparação, não operacional.</strong> Pedidos são apenas rascunhos e não são transmitidos ao bar, caixa ou Asaas. O administrador autenticado pode enviar cópias ao Supabase, sem criar venda ou confirmar pagamento. Não utilize esta tela para cobrar clientes.</div>
    <form onSubmit={submit} className="rounded-xl border border-border bg-card p-5 space-y-4">
     <h2 className="text-xl font-semibold">Novo registro local de teste</h2>
     <label className="block text-sm">Mesa<input required value={table} onChange={e=>setTable(e.target.value)} maxLength={40} className="mt-1 w-full rounded border p-3 bg-background"/></label>
@@ -47,6 +67,7 @@ export default function OfflinePdv() {
     {error && <p role="alert" className="text-red-400">{error}</p>}
     <button type="submit" className="w-full rounded-xl bg-amber-400 p-3 font-bold text-black">Salvar rascunho local de teste</button>
    </form>
+   <section className="space-y-2 rounded-xl border border-border bg-card p-4"><h2 className="font-semibold">Enviar rascunhos ao Supabase</h2><p className="text-sm">Envio manual com login administrativo. Os originais permanecem neste aparelho.</p><button type="button" disabled={!online||syncing} onClick={()=>void syncDrafts()} className="rounded bg-amber-400 px-4 py-3 font-bold text-black disabled:opacity-50">{syncing?"Enviando...":"Sincronizar rascunhos"}</button>{syncMessage&&<p role="status">{syncMessage}</p>}</section>
    <section className="space-y-3"><h2 className="text-xl font-semibold">Rascunhos neste dispositivo ({drafts.length})</h2>{drafts.map(d=><article key={d.id} className="rounded-xl border border-border bg-card p-4"><p className="font-semibold">{d.table} • R$ {(d.totalCents/100).toFixed(2)} </p><p className="text-sm text-muted-foreground">{d.items.map(i=>i.quantity+"x "+i.name).join(", ")} • {d.waiterName}</p><p className="text-xs text-amber-400">Somente local • não sincronizado</p></article>)}</section>
   </div>
  </main>;
