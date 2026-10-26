@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import Link from "next/link";
-import { chatGPTSignOutPath } from "@/app/chatgpt-auth";
 
 type Contact = {
   id: string; fullName: string; rg: string; cpf: string; email: string; age: number; birthDate: string; locality: string; visitCount: number;
@@ -216,7 +215,7 @@ export default function CadastrosAdmin() {
   const current = contacts.find((contact) => contact.id === details);
 
   return <main className="club-page admin-page">
-    <header className="form-header"><Link className="brand" href="/"><img className="brand-logo" src="/club/tamandare-club-profile.png" alt="" /><span className="brand-name">Tamandaré <strong>Club</strong><small>Administração</small></span></Link><nav aria-label="Ações da administração" style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}><Link className="form-back" href="/">Ver site</Link><a className="form-back" href={chatGPTSignOutPath("/")} aria-label="Sair da administração e encerrar sessão">Sair</a></nav></header>
+    <header className="form-header"><Link className="brand" href="/"><img className="brand-logo" src="/club/tamandare-club-profile.png" alt="" /><span className="brand-name">Tamandaré <strong>Club</strong><small>Administração</small></span></Link><nav aria-label="Ações da administração" style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}><Link className="form-back" href="/">Ver site</Link><a className="form-back" href="/signout-with-chatgpt?return_to=%2F" aria-label="Sair da administração e encerrar sessão">Sair</a></nav></header>
     <section className="admin-shell">
       <p className="eyebrow">ÁREA RESTRITA · ADMINISTRAÇÃO</p><h1>Reservas e<br /><em>cadastros.</em></h1>
       <p className="admin-intro">Acompanhe pedidos de reserva e cadastros. Só selecione para promoções quem autorizou receber mensagens pelo WhatsApp.</p>
