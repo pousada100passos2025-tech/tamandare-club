@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { database } from "@/db/repository";
+import { unavailableClubMenuProduct } from "@/lib/club-menu-availability";
 
 const ADMIN_EMAIL = "casadosbartenders@gmail.com";
 const CATEGORIES = ["Drinks", "Bebidas", "Petiscos", "Caldinhos", "Outros"];
@@ -33,6 +34,14 @@ async function ensureTable() {
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
   )`).run();
+  // Cadastro idempotente: não duplica o item em acessos posteriores.
+  // O catálogo atual não possui campo de imagem; a foto deve ser vinculada
+  // no modelo de produtos da versão publicada, antes do deploy.
+  const now = new Date().toISOString();
+  await database().prepare(
+    "INSERT OR IGNORE INTO club_menu_items (id, name, category, description, regular_price, promo_price, active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+  ).bind("corona-extra-long-neck-330ml", "Corona Extra Long Neck 330 ml", "Bebidas",
+    "Cerveja Corona Extra, garrafa long neck 330 ml.", 14, null, 1, now, now).run();
 }
 
 function parseItem(body: Record<string, unknown>) {
@@ -43,7 +52,7 @@ function parseItem(body: Record<string, unknown>) {
   const promoPrice = body.promoPrice === "" || body.promoPrice === null || body.promoPrice === undefined ? null : Number(body.promoPrice);
   const active = body.active === undefined ? true : body.active === true;
 
-  if (!name || !CATEGORIES.includes(category) || !Number.isFinite(regularPrice) || regularPrice <= 0 || regularPrice > 1000000 || (promoPrice !== null && (!Number.isFinite(promoPrice) || promoPrice <= 0 || promoPrice >= regularPrice))) {
+  if (unavailableClubMenuProduct(name) || !name || !CATEGORIES.includes(category) || !Number.isFinite(regularPrice) || regularPrice <= 0 || regularPrice > 1000000 || (promoPrice !== null && (!Number.isFinite(promoPrice) || promoPrice <= 0 || promoPrice >= regularPrice))) {
     return null;
   }
   return { name, category, description: description || null, regularPrice: Math.round(regularPrice * 100) / 100, promoPrice: promoPrice === null ? null : Math.round(promoPrice * 100) / 100, active };
@@ -57,7 +66,7 @@ export async function GET() {
   if (!(await isAdmin())) return NextResponse.json({ error: "Acesso restrito." }, { status: 403 });
   await ensureTable();
   const result = await database().prepare("SELECT id, name, category, description, regular_price, promo_price, active, created_at FROM club_menu_items ORDER BY active DESC, category, name").all<MenuItemRow>();
-  return NextResponse.json({ items: (result.results ?? []).map(toMenuItem) }, { headers: { "Cache-Control": "no-store" } });
+  return NextResponse.json({ items: (result.results ?? []).filter((item) => !unavailableClubMenuProduct(item.name)).map(toMenuItem) }, { headers: { "Cache-Control": "no-store" } });
 }
 
 export async function POST(request: Request) {
