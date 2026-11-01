@@ -34,6 +34,14 @@ async function ensureTable() {
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
   )`).run();
+  // Cadastro idempotente: não duplica o item em acessos posteriores.
+  // O catálogo atual não possui campo de imagem; a foto deve ser vinculada
+  // no modelo de produtos da versão publicada, antes do deploy.
+  const now = new Date().toISOString();
+  await database().prepare(
+    "INSERT OR IGNORE INTO club_menu_items (id, name, category, description, regular_price, promo_price, active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+  ).bind("corona-extra-long-neck-330ml", "Corona Extra Long Neck 330 ml", "Bebidas",
+    "Cerveja Corona Extra, garrafa long neck 330 ml.", 14, null, 1, now, now).run();
 }
 
 function parseItem(body: Record<string, unknown>) {
