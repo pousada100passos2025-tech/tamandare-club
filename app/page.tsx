@@ -54,12 +54,12 @@ const navItems = [
   { label: "Contato", href: "#contato" },
 ];
 
-const inauguracaoItems = [
-  "Pagode da Rua 27 ao vivo",
-  "Área com piscina",
-  "Drinks e cocktails",
-  "Caldinhos e feijoada",
-  "Promoções de inauguração",
+const eventoItems = [
+  "Djalmin Santos ao vivo às 20h",
+  "Happy Hour das 17h às 19h",
+  "Clone de drinks até às 21h",
+  "Heineken gelada e cocktails",
+  "Petiscos e área com piscina",
 ];
 
 export default function Home() {
@@ -187,9 +187,9 @@ function Hero() {
       <div className="relative z-10 mx-auto max-w-5xl px-4 text-center sm:px-5">
         <div className="inline-flex items-center gap-3 rounded-full border border-gold/50 bg-night/60 py-1.5 pl-1.5 pr-5 glow-gold backdrop-blur">
           <span className="rounded-full gold-gradient px-3 py-1 text-xs font-bold uppercase tracking-[0.15em] text-gold-foreground">
-            Inauguração
+            Sábado · música ao vivo
           </span>
-          <span className="font-display text-lg font-bold text-cream sm:text-2xl">01/11</span>
+          <span className="font-display text-lg font-bold text-cream sm:text-2xl">07/11</span>
         </div>
 
         <h1 className="mt-5 font-display font-bold uppercase leading-[0.94] text-cream sm:mt-8 sm:leading-[0.9]">
@@ -202,8 +202,7 @@ function Hero() {
         </h1>
 
         <p className="mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-cream/90 sm:mt-8 sm:text-lg md:text-xl">
-          Pagode ao vivo, área com piscina, drinks e cocktails, caldinhos,
-          feijoada e promoções de inauguração.
+          Djalmin Santos ao vivo às 20h no sábado, 07/11. Happy Hour das 17h às 19h, clone de drinks até às 21h, cerveja gelada e petiscos.
         </p>
 
         <div className="mt-6 flex flex-col items-stretch justify-center gap-2.5 sm:mt-10 sm:flex-row sm:items-center sm:gap-4">
@@ -282,16 +281,16 @@ function ReveillonDestaque() {
 
 const attractionSlides: AttractionSlide[] = [
   {
-    image: "/club/pagode-da-rua-27.png",
-    alt: "Logo da banda Pagode da Rua 27",
-    title: "Pagode da Rua 27",
-    text: "Atração ao vivo na inauguração do Tamandaré Club, dia 1º de novembro.",
+    image: areaExternaImg,
+    alt: "Área de eventos do Tamandaré Club",
+    title: "Djalmin Santos · 07/11",
+    text: "Show ao vivo sábado às 20h. Happy Hour das 17h às 19h e clone de drinks até às 21h.",
   },
   {
     image: areaExternaImg,
     alt: "Área externa coberta com mesas e luzes no Tamandaré Club",
-    title: "Pagode ao vivo",
-    text: "Roda de samba e pagode para cantar junto do começo ao fim.",
+    title: "Música ao vivo",
+    text: "Aproveite o sábado com Djalmin Santos e muita música.",
   },
   {
     image: piscinaLoungeImg,
@@ -314,8 +313,8 @@ const attractionSlides: AttractionSlide[] = [
   {
     image: heroImg,
     alt: "Área da piscina com recepção e bar ao fundo",
-    title: "Promoções de inauguração",
-    text: "Condições especiais para comemorar a abertura com a gente.",
+    title: "Happy Hour e clone de drinks",
+    text: "Happy Hour das 17h às 19h e clone de drinks até às 21h.",
   },
 ];
 
@@ -425,21 +424,21 @@ function Programacao() {
         <article className="relative mt-12 overflow-hidden rounded-3xl border border-gold/40 bg-card glow-gold md:grid md:grid-cols-[220px_1fr_220px]">
           <div className="flex flex-col items-center justify-center gold-gradient px-6 py-8 text-gold-foreground">
             <span className="text-xs font-bold uppercase tracking-[0.3em]">Novembro</span>
-            <span className="font-display text-7xl font-bold leading-none">01</span>
+            <span className="font-display text-7xl font-bold leading-none">07</span>
             <span className="mt-1 text-xs font-bold uppercase tracking-[0.3em]">
-              01/11
+              07/11
             </span>
           </div>
 
           <div className="relative border-dashed border-gold/40 px-6 py-8 md:border-r md:px-10">
             <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-gold">
-              <PartyPopper className="h-3.5 w-3.5" /> Grande inauguração
+              <Music className="h-3.5 w-3.5" /> Música ao vivo · início às 20h
             </span>
             <h3 className="mt-4 font-display text-3xl font-bold uppercase leading-tight md:text-5xl">
-              Inauguração Tamandaré Club
+              Djalmin Santos
             </h3>
             <ul className="mt-6 grid gap-x-6 gap-y-2 sm:grid-cols-2">
-              {inauguracaoItems.map((item) => (
+              {eventoItems.map((item) => (
                 <li
                   key={item}
                   className="flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.08em]"
