@@ -139,10 +139,10 @@ Deno.serve(async(req:Request)=>{
   if(!keys.response.ok||!address)return json(503,{error:"Cadastre e ative uma chave Pix na conta Asaas para gerar o QR Code."});
   const inserted=order?await supabase.from('tamandare_gateway_orders').update({status:'creating',updated_at:new Date().toISOString()}).eq('id',orderKey).eq('status','failed').select().maybeSingle():await supabase.from('tamandare_gateway_orders').insert({id:orderKey,source:body.source,...origin,total_cents:total,status:'creating',request_hash:await digest(JSON.stringify({source:body.source,id:body.orderId,total,method:'pix'}))});
   if(inserted.error||(order&&!inserted.data))return json(409,{error:'Pedido em processamento. Consulte novamente.'});
-  const generated=await api('/pix/qrCodes/static','POST',{addressKey:address.key,description:`Tamandaré Club · Pedido ${body.orderId}`.slice(0,100),value:total/100,format:'ALL',expirationSeconds:600,allowsMultiplePayments:false,externalReference:`tamandare:${body.source}:${area}:${body.orderId}`});
+  const generated=await api('/pix/qrCodes/static','POST',{addressKey:address.key,description:`Tamandare Club - Pedido ${body.orderId.slice(0,8)}`,value:total/100,format:'ALL',expirationSeconds:600,allowsMultiplePayments:false,externalReference:`tamandare:${body.source}:${area}:${body.orderId}`});
   if(!generated.response.ok){
    const rejected=[400,401,403,404,422].includes(generated.response.status);
-   console.error(JSON.stringify({event:'tamandare_pix_rejected',orderId:body.orderId,httpStatus:generated.response.status,codes:Array.isArray(generated.data.errors)?generated.data.errors.map((e:Record<string,unknown>)=>String(e.code||'').slice(0,80)):[]}));
+   console.error(JSON.stringify({event:'tamandare_pix_rejected',orderId:body.orderId,httpStatus:generated.response.status,errors:Array.isArray(generated.data.errors)?generated.data.errors.map((e:Record<string,unknown>)=>({code:String(e.code||'').slice(0,80),description:String(e.description||'').slice(0,300)})):[]}));
    if(rejected)await supabase.from('tamandare_gateway_orders').update({status:'failed',updated_at:new Date().toISOString()}).eq('id',orderKey).eq('status','creating');
    return json(503,{error:rejected?'O Asaas recusou a geração do Pix. Use Recuperar pagamento para tentar novamente no mesmo pedido. Se persistir, chame a equipe.':'O Asaas não confirmou a geração do Pix. Não gere outra cobrança; consulte a administração.'});
   }

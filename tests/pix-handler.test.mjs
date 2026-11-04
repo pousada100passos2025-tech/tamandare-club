@@ -20,6 +20,7 @@ for(const channel of ['pdv','site'])test(`Pix ${channel}: single-use, recoverabl
  const client={from:t=>new Query(t),rpc:async(name,args)=>{if(name==='tamandare_record_payment_snapshot'){snapshots++;const row=rows.find(r=>r.checkout_id===args.p_checkout_id);Object.assign(row,{status:'paid',payment_id:args.p_payment_id,financial_state:args.p_state,financial_revision:1});}return{data:true,error:null};}};
  const fetch=async(url,opts)=>{const u=new URL(url),body=opts.body?JSON.parse(opts.body):null;requests.push({path:u.pathname,method:opts.method,body});
   if(u.pathname==='/v3/pix/addressKeys')return Response.json({data:[{key:'account-test-key',status:'ACTIVE',type:'EVP'}]});
+  if(u.pathname==='/v3/pix/qrCodes/static'&&opts.method==='POST'&&body.description.length>37)return Response.json({errors:[{code:'invalid_action',description:'A descrição deste QR Code não deve ultrapassar 37 caracteres.'}]},{status:400});
   if(u.pathname==='/v3/pix/qrCodes/static'&&opts.method==='POST'&&qrStatus!==200)return Response.json({errors:[{code:'invalid_description',description:'Invalid description'}]},{status:qrStatus});
   if(u.pathname==='/v3/pix/qrCodes/static'&&opts.method==='POST')return Response.json({id:'qr_test',encodedImage:'aW1hZ2U=',payload:'000201-test-pix',expirationDate:'2026-10-26 23:00:00',allowsMultiplePayments:false});
   if(u.pathname==='/v3/payments')return Response.json({hasMore:false,data:payment?[payment]:[]});

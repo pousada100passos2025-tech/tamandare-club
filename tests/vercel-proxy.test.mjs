@@ -13,6 +13,7 @@ test('Vercel forwards the same checkout, cookies and origin without permitting c
   assert.equal(calls[0].headers.get('origin'),'https://tamandareclub.com.br');assert.equal(calls[0].headers.get('cookie'),'device=existing');assert.equal(Buffer.from(calls[0].body).toString(),'{"id":"same-order"}');
   assert.equal(response.headers.get('set-cookie'),'device=private; Path=/; Secure; HttpOnly');assert.equal(response.headers.get('cache-control'),'no-store');
   const blocked=await fetch(base+'/api/site-proxy?__path=/api/pedidos',{method:'POST',headers:{Origin:'https://untrusted.invalid','Content-Type':'application/json'},body:'{}'});assert.equal(blocked.status,403);assert.equal(calls.length,1);
-  await fetch(base+'/api/site-proxy?__path=//untrusted.invalid/path');assert.equal(new URL(calls[1].url).origin,'https://tamandareclub.com.br');
+  const arrival=await fetch(base+'/api/site-proxy?__path=/cardapio',{headers:{'Sec-Fetch-Site':'cross-site'}});assert.equal(arrival.status,200,'customers arriving from external links can open the menu');
+  await fetch(base+'/api/site-proxy?__path=//untrusted.invalid/path');assert.equal(new URL(calls[2].url).origin,'https://tamandareclub.com.br');
  }finally{await new Promise(r=>server.close(r));}
 });
