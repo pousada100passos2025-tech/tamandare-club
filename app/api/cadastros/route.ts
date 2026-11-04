@@ -24,7 +24,7 @@ async function ensureTable() {
     created_at TEXT NOT NULL
   )`).run();
   const columns = await db.prepare("PRAGMA table_info(club_contacts)").all<{ name: string }>();
-  const existingColumns = new Set((columns.results ?? []).map((column) => column.name));
+  const existingColumns = new Set((columns.results ?? []).map((column: { name: string }) => column.name));
   if (!existingColumns.has("image_use_consent")) await db.prepare("ALTER TABLE club_contacts ADD COLUMN image_use_consent INTEGER NOT NULL DEFAULT 0").run();
   if (!existingColumns.has("image_use_consent_at")) await db.prepare("ALTER TABLE club_contacts ADD COLUMN image_use_consent_at TEXT").run();
   if (!existingColumns.has("birth_date")) await db.prepare("ALTER TABLE club_contacts ADD COLUMN birth_date TEXT NOT NULL DEFAULT ''").run();
