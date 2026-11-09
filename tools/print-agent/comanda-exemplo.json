@@ -1,0 +1,13 @@
+{
+  "order_id": "TESTE-001",
+  "table": "Mesa 01",
+  "customer": "Cliente de teste",
+  "created_at": "2026-10-26 01:00",
+  "items": [
+    {
+      "name": "Caipirinha",
+      "quantity": 1,
+      "notes": "Pouco gelo"
+    }
+  ]
+}
