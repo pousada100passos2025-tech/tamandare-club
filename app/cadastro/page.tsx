@@ -21,9 +21,9 @@ export default function CadastroPage() {
     const payload = Object.fromEntries(form.entries());
     const area = String(form.get("residenceArea") ?? "");
     const otherLocality = String(form.get("otherLocality") ?? "").trim();
-    const data = { ...payload, locality: area === "Tamandaré" ? area : `Outra região: ${otherLocality}`, privacyConsent: form.get("privacyConsent") === "on", imageUseConsent: form.get("imageUseConsent") === "on", marketingOptIn: form.get("marketingOptIn") === "on" };
+    const inviteToken = new URLSearchParams(window.location.search).get("convite") || "";\n    const data = { ...payload, inviteToken, locality: area === "Tamandaré" ? area : `Outra região: ${otherLocality}`, privacyConsent: form.get("privacyConsent") === "on", imageUseConsent: form.get("imageUseConsent") === "on", marketingOptIn: form.get("marketingOptIn") === "on" };
     try {
-      const response = await fetch("/api/cadastros", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+      const response = await fetch(inviteToken ? "/api/convites/resgatar" : "/api/cadastros", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Não foi possível concluir o cadastro.");
       setDone(true);
@@ -42,7 +42,7 @@ export default function CadastroPage() {
       <section className="form-shell">
         <p className="eyebrow">NOVIDADES E PROMOÇÕES</p>
         <h1>Entre para a<br /><em>lista do Club.</em></h1>
-        <p className="form-intro">Faça seu cadastro para acompanhar as novidades, os eventos e as promoções do Tamandaré Club. Para receber promoções pelo WhatsApp, marque a opção abaixo — ela é opcional.</p>
+        <p className="form-intro">Faça seu cadastro para acompanhar as novidades, os eventos e as promoções do Tamandaré Club. Para receber promoções pelo WhatsApp, marque a opção abaixo — ela é opcional.</p>\n        {typeof window !== "undefined" && new URLSearchParams(window.location.search).has("convite") && <div className="admin-notice" role="status">Convite VIP detectado. O cadastro será validado com o nome e WhatsApp autorizados.</div>}
         {done ? <div className="form-success" role="status"><strong>Cadastro recebido.</strong><span>Obrigado por se cadastrar no Tamandaré Club.</span><span>Acompanhe os shows, eventos e novidades pelo nosso Instagram.</span><a className="button button-primary instagram-follow-button" href="https://www.instagram.com/tamandare_club_oficial/" target="_blank" rel="noopener noreferrer">Seguir o Tamandaré Club no Instagram</a></div> : <form className="club-form" onSubmit={submit}>
           <div className="form-grid">
             <label className="form-field form-field-wide">Nome completo<input name="fullName" autoComplete="name" required maxLength={120} /></label>
