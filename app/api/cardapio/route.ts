@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { database } from "@/db/repository";
+import { effectivePriceReais, isNightPriceActive } from "@/lib/night-pricing";
 
 const ADMIN_EMAIL = "casadosbartenders@gmail.com";
 const CATEGORIES = ["Drinks", "Bebidas", "Petiscos", "Caldinhos", "Outros"];
@@ -49,15 +50,25 @@ function parseItem(body: Record<string, unknown>) {
   return { name, category, description: description || null, regularPrice: Math.round(regularPrice * 100) / 100, promoPrice: promoPrice === null ? null : Math.round(promoPrice * 100) / 100, active };
 }
 
-function toMenuItem(row: MenuItemRow) {
-  return { id: row.id, name: row.name, category: row.category, description: row.description, regularPrice: row.regular_price, promoPrice: row.promo_price, active: row.active === 1, createdAt: row.created_at };
+function toMenuItem(row: MenuItemRow, at: Date) {
+  const basePrice = row.promo_price ?? row.regular_price;
+  return {
+    id: row.id, name: row.name, category: row.category, description: row.description,
+    regularPrice: row.regular_price, promoPrice: row.promo_price,
+    effectivePrice: effectivePriceReais(basePrice, at),
+    active: row.active === 1, createdAt: row.created_at,
+  };
 }
 
 export async function GET() {
   if (!(await isAdmin())) return NextResponse.json({ error: "Acesso restrito." }, { status: 403 });
   await ensureTable();
   const result = await database().prepare("SELECT id, name, category, description, regular_price, promo_price, active, created_at FROM club_menu_items ORDER BY active DESC, category, name").all<MenuItemRow>();
-  return NextResponse.json({ items: (result.results ?? []).map(toMenuItem) }, { headers: { "Cache-Control": "no-store" } });
+  const now = new Date();
+  return NextResponse.json({
+    items: (result.results ?? []).map((row) => toMenuItem(row, now)),
+    nightPricingActive: isNightPriceActive(now),
+  }, { headers: { "Cache-Control": "no-store" } });
 }
 
 export async function POST(request: Request) {
