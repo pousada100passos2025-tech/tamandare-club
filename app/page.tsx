@@ -48,6 +48,7 @@ const navItems = [
   { label: "Programação", href: "#programacao" },
   { label: "Atrações", href: "#atracoes" },
   { label: "Réveillon", href: "/reservas/reveillon" },
+  { label: "Club Exclusive", href: "/exclusivo" },
   { label: "Reservas e cadastro", href: CADASTRO_URL },
   { label: "Galeria", href: "#galeria" },
   { label: "Casamentos e Eventos", href: "#casamentos" },
